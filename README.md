@@ -71,12 +71,3 @@ Ce projet est un jeu Pong multijoueur en ligne, développé avec Django et basé
 3. **Chat en temps réel** : Les joueurs peuvent discuter en temps réel pendant les parties.
 
 ---
-
-## **Contributeurs**
-- **Ton Nom** - Développeur principal
-
----
-
-Ce README révisé ne mentionne plus le module de monitoring système et est aligné avec les 7 modules que tu souhaites intégrer dans ton projet.
-
-Cela te convient-il ?
