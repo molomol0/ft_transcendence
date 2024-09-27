@@ -1,7 +1,3 @@
-Voici une version révisée du **README** sans le module de monitoring système :
-
----
-
 # **Projet Pong Multijoueur - ft_transcendence**
 
 ## **Description**
