@@ -76,16 +76,19 @@ WSGI_APPLICATION = 'auth_service.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# settings.py
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Utilise 'postgresql' pour psycopg2
-        'NAME': 'auth_db',
-        'USER': 'postgres',
-        'PASSWORD': 'yourpassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'auth_db',  # Le nom de ta base de données
+        'USER': 'postgres',  # L'utilisateur de la base de données
+        'PASSWORD': 'yourpassword',  # Le mot de passe de l'utilisateur
+        'HOST': 'db',  # Utilise le nom du service défini dans docker-compose.yml
+        'PORT': '5432',  # Port par défaut de PostgreSQL
     }
 }
+
 
 
 
