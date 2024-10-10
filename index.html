@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong-style Cube Selection Game</title>
+    <title>Pong-style Cube Selection Game with Dynamic Ball</title>
     <style>
         body {
             margin: 0;
@@ -27,15 +27,14 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Variables pour les interac tions
-        let selectedCube1 = null;
-        let selectedCube2 = null;
-        let selectedCube3 = null;
-        let selectedCube4 = null;
-        let selectedCube5 = null;
-        let selectedCube6 = null;
+        // Variables pour les interactions
+        const lineLength = 3; // Longueur de la ligne de cubes pour chaque joueur
         const targetHeight = 1; // Hauteur cible lorsque le cube est sélectionné
-        const liftSpeed = 0.05; // Vitesse de montée
+        const liftSpeed = 0.1; // Vitesse de montée
+        const moveSpeed = 0.1; // Vitesse de déplacement des lignes
+        const initialBallSpeed = 0.05; // Vitesse initiale de la balle
+        const ballSizeScale = 2; // Facteur d'échelle pour la taille de la balle (0.4 = 40% de la taille d'origine)
+        const speedIncreaseFactor = 1.1; // Facteur d'augmentation de la vitesse à chaque touche
 
         // Créer une grille de cubes avec coins arrondis
         const platformSize = 10;  // Taille de la plateforme 10x10
@@ -55,7 +54,7 @@
         for (let i = 0; i < platformSize; i++) {
             for (let j = 0; j < platformSize; j++) {
                 const cube = createRoundedBox(cubeSize, 0x00ff00);
-                cube.position.set(i - platformSize / 2, 0, j - platformSize / 2);
+                cube.position.set(i - platformSize / 2 + 0.5, 0, j - platformSize / 2 + 0.5);
                 cube.userData.gridPosition = { x: i, z: j };
                 cubes.push(cube);
                 scene.add(cube);
@@ -67,96 +66,137 @@
         camera.lookAt(0, 0, 0);
 
         // Variables pour suivre la position actuelle des curseurs
-        let cursorPosition1Top = { x: 0, z: 3 };
-        let cursorPosition1Mid = { x: 0, z: 4 };
-        let cursorPosition1Bot = { x: 0, z: 5 };
+        const centerZ = Math.floor((platformSize - lineLength) / 2);
+        const player1Positions = Array(lineLength).fill().map((_, index) => ({ x: 0, z: centerZ + index }));
+        const player2Positions = Array(lineLength).fill().map((_, index) => ({ x: platformSize - 1, z: centerZ + index }));
 
-        let cursorPosition2Top = { x: 9, z: 3 };
-        let cursorPosition2Mid = { x: 9, z: 4 };
-        let cursorPosition2Bot = { x: 9, z: 5 };
+        // Create ball
+        const ballGeometry = new THREE.SphereGeometry(0.2 * ballSizeScale, 32, 32);
+        const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+        ball.position.set(0, 0.7, 0);
+        scene.add(ball);
 
+        // Ball movement
+        let ballSpeed = initialBallSpeed;
+        let ballVelocity = new THREE.Vector3(ballSpeed, 0, ballSpeed);
+
+        // Object to track pressed keys
+        const pressedKeys = {};
 
         // Fonction pour mettre à jour la sélection des cubes
         function updateCubeSelection() {
-            if (selectedCube1) {
-                selectedCube1.material.color.setHex(0x00ff00);
-                selectedCube1.userData.targetY = 0;
+            cubes.forEach(cube => {
+                cube.material.color.setHex(0x00ff00);
+                cube.userData.targetY = 0;
+            });
+
+            player1Positions.forEach((pos, index) => {
+                const cube = cubes.find(cube =>
+                    cube.userData.gridPosition.x === Math.floor(pos.x) &&
+                    cube.userData.gridPosition.z === Math.floor(pos.z)
+                );
+                if (cube) {
+                    cube.material.color.setHex(0xff0000);
+                    cube.userData.targetY = targetHeight;
+                }
+            });
+
+            player2Positions.forEach((pos, index) => {
+                const cube = cubes.find(cube =>
+                    cube.userData.gridPosition.x === Math.floor(pos.x) &&
+                    cube.userData.gridPosition.z === Math.floor(pos.z)
+                );
+                if (cube) {
+                    cube.material.color.setHex(0x0000ff);
+                    cube.userData.targetY = targetHeight;
+                }
+            });
+        }
+
+        // Fonction pour mettre à jour les positions des joueurs
+        function updatePlayerPositions() {
+            // Player 1 movement
+            if (pressedKeys['w'] || pressedKeys['a']) {
+                if (player1Positions[0].z > 0) {
+                    player1Positions.forEach(pos => pos.z -= moveSpeed);
+                }
             }
-            if (selectedCube2) {
-                selectedCube2.material.color.setHex(0x00ff00);
-                selectedCube2.userData.targetY = 0;
-            }
-            if (selectedCube3) {
-                selectedCube2.material.color.setHex(0x00ff00);
-                selectedCube2.userData.targetY = 0;
-            }
-            if (selectedCube4) {
-                selectedCube2.material.color.setHex(0x00ff00);
-                selectedCube2.userData.targetY = 0;
-            }
-            if (selectedCube5) {
-                selectedCube2.material.color.setHex(0x00ff00);
-                selectedCube2.userData.targetY = 0;
-            }
-            if (selectedCube6) {
-                selectedCube2.material.color.setHex(0x00ff00);
-                selectedCube2.userData.targetY = 0;
+            if (pressedKeys['s'] || pressedKeys['d']) {
+                if (player1Positions[lineLength - 1].z < platformSize - 1) {
+                    player1Positions.forEach(pos => pos.z += moveSpeed);
+                }
             }
 
-            selectedCube1 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition1Top.x &&
-                cube.userData.gridPosition.z === cursorPosition1Top.z
-            );
-            selectedCube2 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition2Top.x &&
-                cube.userData.gridPosition.z === cursorPosition2Top.z
-            );
-            selectedCube3 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition1Mid.x &&
-                cube.userData.gridPosition.z === cursorPosition1Mid.z
-            );
-            selectedCube4 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition1Bot.x &&
-                cube.userData.gridPosition.z === cursorPosition1Bot.z
-            );
-            selectedCube5 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition2Mid.x &&
-                cube.userData.gridPosition.z === cursorPosition2Mid.z
-            );
-            selectedCube6 = cubes.find(cube =>
-                cube.userData.gridPosition.x === cursorPosition2Bot.x &&
-                cube.userData.gridPosition.z === cursorPosition2Bot.z
-            );
+            // Player 2 movement
+            if (pressedKeys['ArrowUp'] || pressedKeys['ArrowRight']) {
+                if (player2Positions[0].z > 0) {
+                    player2Positions.forEach(pos => pos.z -= moveSpeed);
+                }
+            }
+            if (pressedKeys['ArrowDown'] || pressedKeys['ArrowLeft']) {
+                if (player2Positions[lineLength - 1].z < platformSize - 1) {
+                    player2Positions.forEach(pos => pos.z += moveSpeed);
+                }
+            }
 
-            if (selectedCube1) {
-                selectedCube1.material.color.setHex(0xff0000);
-                selectedCube1.userData.targetY = targetHeight;
+            // Ensure positions stay within bounds
+            player1Positions.forEach(pos => {
+                pos.z = Math.max(0, Math.min(platformSize - 1, pos.z));
+            });
+            player2Positions.forEach(pos => {
+                pos.z = Math.max(0, Math.min(platformSize - 1, pos.z));
+            });
+        }
+
+        function updateBallPosition() {
+            ball.position.add(ballVelocity);
+
+            // Check for collisions with raised cubes
+            cubes.forEach(cube => {
+                if (cube.position.y > 0.1) {
+                    const dx = Math.abs(ball.position.x - cube.position.x);
+                    const dz = Math.abs(ball.position.z - cube.position.z);
+                    if (dx < 0.6 && dz < 0.6) {
+                        if (dx > dz) {
+                            ballVelocity.x *= -1;
+                        } else {
+                            ballVelocity.z *= -1;
+                        }
+                        // Increase ball speed
+                        ballSpeed *= speedIncreaseFactor;
+                        ballVelocity.normalize().multiplyScalar(ballSpeed);
+                    }
+                }
+            });
+
+            // Check for collisions with grid boundaries
+            if (ball.position.x < -platformSize / 2 + 0.5 || ball.position.x > platformSize / 2 - 0.5) {
+                ballVelocity.x *= -1;
             }
-            if (selectedCube2) {
-                selectedCube2.material.color.setHex(0x0000ff);
-                selectedCube2.userData.targetY = targetHeight;
+            if (ball.position.z < -platformSize / 2 + 0.5 || ball.position.z > platformSize / 2 - 0.5) {
+                ballVelocity.z *= -1;
             }
-            if (selectedCube3) {
-                selectedCube3.material.color.setHex(0xff0000);
-                selectedCube3.userData.targetY = targetHeight;
+
+            // Check if ball is behind player lines
+            if (ball.position.x < -platformSize / 2 + 1 || ball.position.x > platformSize / 2 - 1) {
+                resetBall();
             }
-            if (selectedCube4) {
-                selectedCube4.material.color.setHex(0xff0000);
-                selectedCube4.userData.targetY = targetHeight;
-            }
-            if (selectedCube5) {
-                selectedCube5.material.color.setHex(0x0000ff);
-                selectedCube5.userData.targetY = targetHeight;
-            }
-            if (selectedCube6) {
-                selectedCube6.material.color.setHex(0x0000ff);
-                selectedCube6.userData.targetY = targetHeight;
-            }
+        }
+
+        function resetBall() {
+            ball.position.set(0, 0.7, 0);
+            ballSpeed = initialBallSpeed;
+            ballVelocity = new THREE.Vector3(ballSpeed * (Math.random() > 0.5 ? 1 : -1), 0, ballSpeed * (Math.random() > 0.5 ? 1 : -1));
         }
 
         // Fonction d'animation
         function animate() {
             requestAnimationFrame(animate);
+
+            updatePlayerPositions();
+            updateCubeSelection();
+            updateBallPosition();
 
             // Animation de montée et descente fluide
             cubes.forEach(cube => {
@@ -170,42 +210,27 @@
 
         // Gestion des événements du clavier
         function onKeyDown(event) {
-            switch (event.key) {
-                // Contrôles pour le joueur 2 (côté droit)
-                case 'ArrowUp':
-                case 'ArrowRight':
-                    cursorPosition2Top.z = Math.max(0, cursorPosition2Top.z - 1);
-                    cursorPosition2Mid.z = Math.max(0, cursorPosition2Mid.z - 1);
-                    cursorPosition2Bot.z = Math.max(0, cursorPosition2Bot.z - 1);
-                    break;
-                case 'ArrowDown':
-                case 'ArrowLeft':
-                    cursorPosition2Top.z = Math.min(platformSize - 3, cursorPosition2Top.z + 1);
-                    cursorPosition2Mid.z = Math.min(platformSize - 2, cursorPosition2Mid.z + 1); 
-                    cursorPosition2Bot.z = Math.min(platformSize - 1, cursorPosition2Bot.z + 1);
-                    break;
+            pressedKeys[event.key] = true;
+        }
 
-                // Contrôles pour le joueur 1 (côté gauche)
-                case 'w':
-                case 'a':
-                    cursorPosition1Top.z = Math.max(0, cursorPosition1Top.z - 1);
-                    cursorPosition1Mid.z = Math.max(0, cursorPosition1Mid.z - 1);
-                    cursorPosition1Bot.z = Math.max(0, cursorPosition1Bot.z - 1);
-                    break;
-                case 's':
-                case 'd':
-                    cursorPosition1Top.z = Math.min(platformSize - 1, cursorPosition1Top.z + 1);
-                    cursorPosition1Mid.z = Math.min(platformSize - 2, cursorPosition1Mid.z + 1);
-                    cursorPosition1Bot.z = Math.min(platformSize - 3, cursorPosition1Bot.z + 1);
-                    break;
-            }
-            updateCubeSelection();
+        function onKeyUp(event) {
+            pressedKeys[event.key] = false;
+        }
+
+        // Gestion du zoom avec la molette de la souris
+        function onMouseWheel(event) {
+            const zoomSpeed = 0.1;
+            const zoomFactor = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed;
+            
+            camera.position.y *= zoomFactor;
+            camera.position.z *= zoomFactor;
+            
+            camera.lookAt(0, 0, 0);
         }
 
         window.addEventListener('keydown', onKeyDown, false);
-
-        // Initialiser la sélection des cubes
-        updateCubeSelection();
+        window.addEventListener('keyup', onKeyUp, false);
+        window.addEventListener('wheel', onMouseWheel, false);
 
         // Démarrer l'animation
         animate();
