@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong-style Cube Selection Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Initialisation de la scène, de la caméra, et du rendu
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Variables pour les interac tions
+        let selectedCube1 = null;
+        let selectedCube2 = null;
+        let selectedCube3 = null;
+        let selectedCube4 = null;
+        let selectedCube5 = null;
+        let selectedCube6 = null;
+        const targetHeight = 1; // Hauteur cible lorsque le cube est sélectionné
+        const liftSpeed = 0.05; // Vitesse de montée
+
+        // Créer une grille de cubes avec coins arrondis
+        const platformSize = 10;  // Taille de la plateforme 10x10
+        const cubeSize = 1;
+        const cubes = [];
+
+        const createRoundedBox = (size, color) => {
+            const geometry = new THREE.BoxBufferGeometry(size, size, size);
+            const edgesGeometry = new THREE.EdgesGeometry(geometry);
+            const material = new THREE.MeshBasicMaterial({ color: color });
+            const cube = new THREE.Mesh(geometry, material);
+            const edges = new THREE.LineSegments(edgesGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 }));
+            cube.add(edges);
+            return cube;
+        };
+
+        for (let i = 0; i < platformSize; i++) {
+            for (let j = 0; j < platformSize; j++) {
+                const cube = createRoundedBox(cubeSize, 0x00ff00);
+                cube.position.set(i - platformSize / 2, 0, j - platformSize / 2);
+                cube.userData.gridPosition = { x: i, z: j };
+                cubes.push(cube);
+                scene.add(cube);
+            }
+        }
+
+        camera.position.y = 10;  // Position de la caméra au-dessus de la plateforme
+        camera.position.z = 15;
+        camera.lookAt(0, 0, 0);
+
+        // Variables pour suivre la position actuelle des curseurs
+        let cursorPosition1Top = { x: 0, z: 3 };
+        let cursorPosition1Mid = { x: 0, z: 4 };
+        let cursorPosition1Bot = { x: 0, z: 5 };
+
+        let cursorPosition2Top = { x: 9, z: 3 };
+        let cursorPosition2Mid = { x: 9, z: 4 };
+        let cursorPosition2Bot = { x: 9, z: 5 };
+
+
+        // Fonction pour mettre à jour la sélection des cubes
+        function updateCubeSelection() {
+            if (selectedCube1) {
+                selectedCube1.material.color.setHex(0x00ff00);
+                selectedCube1.userData.targetY = 0;
+            }
+            if (selectedCube2) {
+                selectedCube2.material.color.setHex(0x00ff00);
+                selectedCube2.userData.targetY = 0;
+            }
+            if (selectedCube3) {
+                selectedCube2.material.color.setHex(0x00ff00);
+                selectedCube2.userData.targetY = 0;
+            }
+            if (selectedCube4) {
+                selectedCube2.material.color.setHex(0x00ff00);
+                selectedCube2.userData.targetY = 0;
+            }
+            if (selectedCube5) {
+                selectedCube2.material.color.setHex(0x00ff00);
+                selectedCube2.userData.targetY = 0;
+            }
+            if (selectedCube6) {
+                selectedCube2.material.color.setHex(0x00ff00);
+                selectedCube2.userData.targetY = 0;
+            }
+
+            selectedCube1 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition1Top.x &&
+                cube.userData.gridPosition.z === cursorPosition1Top.z
+            );
+            selectedCube2 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition2Top.x &&
+                cube.userData.gridPosition.z === cursorPosition2Top.z
+            );
+            selectedCube3 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition1Mid.x &&
+                cube.userData.gridPosition.z === cursorPosition1Mid.z
+            );
+            selectedCube4 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition1Bot.x &&
+                cube.userData.gridPosition.z === cursorPosition1Bot.z
+            );
+            selectedCube5 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition2Mid.x &&
+                cube.userData.gridPosition.z === cursorPosition2Mid.z
+            );
+            selectedCube6 = cubes.find(cube =>
+                cube.userData.gridPosition.x === cursorPosition2Bot.x &&
+                cube.userData.gridPosition.z === cursorPosition2Bot.z
+            );
+
+            if (selectedCube1) {
+                selectedCube1.material.color.setHex(0xff0000);
+                selectedCube1.userData.targetY = targetHeight;
+            }
+            if (selectedCube2) {
+                selectedCube2.material.color.setHex(0x0000ff);
+                selectedCube2.userData.targetY = targetHeight;
+            }
+            if (selectedCube3) {
+                selectedCube3.material.color.setHex(0xff0000);
+                selectedCube3.userData.targetY = targetHeight;
+            }
+            if (selectedCube4) {
+                selectedCube4.material.color.setHex(0xff0000);
+                selectedCube4.userData.targetY = targetHeight;
+            }
+            if (selectedCube5) {
+                selectedCube5.material.color.setHex(0x0000ff);
+                selectedCube5.userData.targetY = targetHeight;
+            }
+            if (selectedCube6) {
+                selectedCube6.material.color.setHex(0x0000ff);
+                selectedCube6.userData.targetY = targetHeight;
+            }
+        }
+
+        // Fonction d'animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animation de montée et descente fluide
+            cubes.forEach(cube => {
+                if (cube.userData.targetY !== undefined) {
+                    cube.position.y += (cube.userData.targetY - cube.position.y) * liftSpeed;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Gestion des événements du clavier
+        function onKeyDown(event) {
+            switch (event.key) {
+                // Contrôles pour le joueur 2 (côté droit)
+                case 'ArrowUp':
+                case 'ArrowRight':
+                    cursorPosition2Top.z = Math.max(0, cursorPosition2Top.z - 1);
+                    cursorPosition2Mid.z = Math.max(0, cursorPosition2Mid.z - 1);
+                    cursorPosition2Bot.z = Math.max(0, cursorPosition2Bot.z - 1);
+                    break;
+                case 'ArrowDown':
+                case 'ArrowLeft':
+                    cursorPosition2Top.z = Math.min(platformSize - 3, cursorPosition2Top.z + 1);
+                    cursorPosition2Mid.z = Math.min(platformSize - 2, cursorPosition2Mid.z + 1); 
+                    cursorPosition2Bot.z = Math.min(platformSize - 1, cursorPosition2Bot.z + 1);
+                    break;
+
+                // Contrôles pour le joueur 1 (côté gauche)
+                case 'w':
+                case 'a':
+                    cursorPosition1Top.z = Math.max(0, cursorPosition1Top.z - 1);
+                    cursorPosition1Mid.z = Math.max(0, cursorPosition1Mid.z - 1);
+                    cursorPosition1Bot.z = Math.max(0, cursorPosition1Bot.z - 1);
+                    break;
+                case 's':
+                case 'd':
+                    cursorPosition1Top.z = Math.min(platformSize - 1, cursorPosition1Top.z + 1);
+                    cursorPosition1Mid.z = Math.min(platformSize - 2, cursorPosition1Mid.z + 1);
+                    cursorPosition1Bot.z = Math.min(platformSize - 3, cursorPosition1Bot.z + 1);
+                    break;
+            }
+            updateCubeSelection();
+        }
+
+        window.addEventListener('keydown', onKeyDown, false);
+
+        // Initialiser la sélection des cubes
+        updateCubeSelection();
+
+        // Démarrer l'animation
+        animate();
+    </script>
+</body>
+
+</html>
