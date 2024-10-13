@@ -30,16 +30,16 @@
 
         // Variables pour les interactions
         const lineLength = 5; // Longueur de la ligne de cubes pour chaque joueur
-        const targetHeight = 0.8; // Hauteur cible lorsque le cube est sélectionné
+        const targetHeight = 0.6; // Hauteur cible lorsque le cube est sélectionné
         const liftSpeed = 0.1; // Vitesse de montée
         const moveSpeed = 0.1; // Vitesse de déplacement des lignes
-        const initialBallSpeed = 0.03; // Vitesse initiale de la balle
+        const initialBallSpeed = 0.05; // Vitesse initiale de la balle
         const ballSizeScale = 2; // Facteur d'échelle pour la taille de la balle (0.4 = 40% de la taille d'origine)
-        const speedIncreaseFactor = 1.1; // Facteur d'augmentation de la vitesse à chaque touche
+        const speedIncreaseFactor = 1.05; // Facteur d'augmentation de la vitesse à chaque touche
 
         // Nouvelles variables pour la plateforme rectangulaire
-        const platformWidth = 15;  // Largeur de la plateforme
-        const platformLength = 10; // Longueur de la plateforme
+        const platformWidth = 20;  // Longueur de la plateforme
+        const platformLength = 10; // Largeur de la plateforme
         const cubeSize = 1;
         const cubes = [];
 
@@ -66,7 +66,7 @@
 
         for (let i = 0; i < platformWidth; i++) {
             for (let j = 0; j < platformLength; j++) {
-                const geometry = createRoundedBox(cubeSize, cubeSize, cubeSize, 0.1, 4);
+                const geometry = createRoundedBox(cubeSize, cubeSize, cubeSize, 0.18, 4);
                 const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
                 const cube = new THREE.Mesh(geometry, material);
                 cube.position.set(i - platformWidth / 2 + 0.5, 0, j - platformLength / 2 + 0.5);
@@ -89,9 +89,13 @@
         camera.lookAt(0, 0, 0);
 
         // Variables pour suivre la position actuelle des curseurs
-        const centerZ = Math.floor((platformLength - lineLength) / 2);
+        if (lineLength == platformLength)
+            centerZ = 0;
+        else
+            centerZ = Math.floor((platformLength - lineLength) / 2);
         let player1Positions = Array(lineLength).fill().map((_, index) => ({ x: 0, z: centerZ + index }));
         let player2Positions = Array(lineLength).fill().map((_, index) => ({ x: platformWidth - 1, z: centerZ + index }));
+
 
         // Create ball
         const ballGeometry = new THREE.SphereGeometry(0.2 * ballSizeScale, 32, 32);
@@ -171,32 +175,41 @@
         }
 
         function updateBallPosition() {
-            ball.position.add(ballVelocity);
+            const potentialPosition = ball.position.clone().add(ballVelocity);
 
             // Check for collisions with raised cubes
+            let collision = false;
             cubes.forEach(cube => {
                 if (cube.position.y > 0.1) {
-                    const dx = Math.abs(ball.position.x - cube.position.x);
-                    const dz = Math.abs(ball.position.z - cube.position.z);
+                    const dx = Math.abs(potentialPosition.x - cube.position.x);
+                    const dz = Math.abs(potentialPosition.z - cube.position.z);
                     if (dx < 0.6 && dz < 0.6) {
+                        collision = true;
                         if (dx > dz) {
                             ballVelocity.x *= -1;
                         } else {
                             ballVelocity.z *= -1;
                         }
-                        // Increase ball speed
-                        ballSpeed *= speedIncreaseFactor;
+                        // Increase ball speed, but cap it at maxBallSpeed
+                        ballSpeed = ballSpeed * speedIncreaseFactor;
                         ballVelocity.normalize().multiplyScalar(ballSpeed);
                     }
                 }
             });
 
+            // Only update the ball position if no collision occurred
+            if (!collision) {
+                ball.position.copy(potentialPosition);
+            }
+
             // Check for collisions with grid boundaries
             if (ball.position.x < -platformWidth / 2 + 0.5 || ball.position.x > platformWidth / 2 - 0.5) {
                 ballVelocity.x *= -1;
+                ball.position.x = Math.max(Math.min(ball.position.x, platformWidth / 2 - 0.5), -platformWidth / 2 + 0.5);
             }
             if (ball.position.z < -platformLength / 2 + 0.5 || ball.position.z > platformLength / 2 - 0.5) {
                 ballVelocity.z *= -1;
+                ball.position.z = Math.max(Math.min(ball.position.z, platformLength / 2 - 0.5), -platformLength / 2 + 0.5);
             }
 
             // Check if ball is behind player lines
