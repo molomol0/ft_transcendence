@@ -1,0 +1,75 @@
+<head>
+    <title>Settings</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/xp.css/dist/XP.css"/>
+</head>
+
+<body>
+    <div class="title-bar">
+        <div class="title-bar-text">Settings</div>
+        <div class="title-bar-controls">
+            <button aria-label="Close" id="close-button" onclick="route(event, '/')"></button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="window" id="profileWindow">
+            <div class="title-bar">
+              <div class="title-bar-text">Edit Profile</div>
+            </div>
+            <div class="profileBody">
+                <div class="profileView">
+                    <img src="../css/icon/pong_logo.png" id="userIcon">
+                    <span id="userID"><span id="profile-username">Username</span><span class="IDHash">#<span
+                        id="profile-id">ID</span></span></span>
+                </div>
+                <div class="editFields">
+                    <form class="editSet" id="upload-image-form">
+                        <input type="file" id="upload-image" accept="image/*">
+                        <button type="submit">Edit</button>
+                    </form>
+					<div class="editSet">
+						<span id="username">Username</span>
+						<button id="editBtnUsername">Edit</button>
+						<form id="username-form" class="editForm" style="display: none">
+							<input type="text" id="username-input" placeholder="Username">
+							<button type="button" id="saveBtnUsername">Submit</button>
+							<button type="button" id="cancelBtnUsername">Cancel</button>
+						</form>
+					</div>
+					<div class="editSet">
+						<span id="userpwrd">************</span>
+						<button id="editBtnUserpwrd">Edit</button>
+						<form id="userpwrd-form" class="editForm" style="display: none;">
+							<input type="password" id="old-userpwrd-input" placeholder="Old Password">
+							<input type="password" id="new-userpwrd-input" placeholder="New Password">
+							<button type="button" id="saveBtnUserpwrd">Submit</button>
+							<button type="button" id="cancelBtnUserpwrd">Cancel</button>
+						</form>
+					</div>
+					<div class="editSet">
+						<span id="userMail">Username@gmail.com</span>
+						<button id="editBtnUserMail">Edit</button>
+						<form id="userMail-form" class="editForm" style="display: none;">
+							<input type="email" id="userMail-input" placeholder="Email">
+							<button type="button" id="saveBtnUserMail">Submit</button>
+							<button type="button" id="cancelBtnUserMail">Cancel</button>
+						</form>
+					</div>
+                </div>
+            </div>
+        </div>
+        <div class="window" id="optionWindow">
+            <div class="title-bar">
+              <div class="title-bar-text">Option</div>
+            </div>
+            <div class="optionBody">
+                <button id="btn2FA">Activate 2-factor authentication</button>
+                <div id="qrCodeContainer"></div>
+                <!-- <button id="changeAcc">Switch Account</button> -->
+            </div>
+        </div>
+    </div>
+</body>

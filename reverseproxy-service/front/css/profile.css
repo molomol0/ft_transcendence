@@ -1,0 +1,239 @@
+.title-bar {
+	width: calc(100% - 10px);
+	position: fixed;
+	top: 0px;
+	z-index: 1000;
+}
+
+.window-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 80%;
+}
+
+/* =====================================User window===================================== */
+#profileDisplay {
+    width: 65%;
+    height:90%;
+    display: flex;
+	position: fixed;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 50px;
+    top: 50%;
+    left: 34%;
+    transform: translate(-50%, -50%);
+}
+
+/* --------------------------------Header-------------------------------- */
+.window-header {
+    display: flex;
+    justify-content: center;
+	align-items: center;
+    gap : 50px;
+    padding: 5 px;
+}
+
+#userIcon {
+	border: 5px solid #ffffff;
+	border-radius: 3%;
+	height: 200px;
+}
+
+#userID {
+	font-size: 50px;
+}
+
+.IDHash {
+	color:rgb(114, 114, 114);
+}
+
+
+
+/* --------------------------------Tables-------------------------------- */
+.flex-tables {
+    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+	align-items: space-evenly;
+    gap: 20px;
+}
+
+/* wrapper around the table to make the table scrolable in small window */
+.table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+#history-wrapper {
+    max-height: 391px;
+    overflow-y: auto;
+}
+
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	background-color: #ffffff;
+    width: 100%;
+}
+
+td, th {
+	border: 1px solid #000000;
+	padding: 8px;
+}
+
+#history{
+    min-width: 600px;
+}
+
+#statistics{
+    min-width: 400px;
+}
+
+.stat {
+	text-align: end;
+	min-width: 100px;
+}
+
+.winrate-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ====================================Friends window==================================== */
+#friendDisplay {
+    width: 31%; 
+    height: 90%;
+	position: fixed;
+    top: 50%;
+    left: 83%;
+    transform: translate(-50%, -50%);
+}
+
+.friend-window {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 95%;
+    align-items: center;
+    padding-top: 3%;
+}
+
+.status-indicator {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+/* Couleur de la pastille en fonction du statut */
+.friend-avatar.online + .status-indicator {
+    background-color: #00ff00;
+}
+
+.friend-avatar.offline + .status-indicator {
+    background-color: #ff0000;
+}
+
+/* --------------------------------Search Bar-------------------------------- */
+.search-bar {
+    width: 90%;
+}
+
+#search_bar {
+	width: 100%;
+}
+
+.title-bar-user {
+	position : relative;
+}
+
+/* --------------------------------User Search Display-------------------------------- */
+.searchUser-window {
+    width: 90%;
+    height: 22%;
+}
+
+#searchResults-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 85%;
+    overflow-y: auto;
+}
+
+/* --------------------------------Friend Request-------------------------------- */
+.friendRequest-window {
+    width: 90%;
+    height: 15%;
+}
+
+#requestResults-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 70%;
+    overflow-y: auto;
+}
+
+/* --------------------------------Friend List-------------------------------- */
+.friendsList-window {
+    width: 90%;
+    height: 47%;
+}
+
+#friendList-body {
+    display: flex;
+    flex-direction: column;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+/* --------------------------------User Items-------------------------------- */
+.friend-item {
+	display: flex;
+	padding: 8px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.friend-item img {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.friend-actions {
+	display: flex;
+	gap: 10px;
+}
+
+
+
+
+
+@media screen and (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .main-content {
+        flex-direction: column;
+    }
+
+    #userID {
+        font-size: 1.5rem;
+    }
+
+    .friend-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .friend-actions {
+        margin-top: 10px;
+    }
+}

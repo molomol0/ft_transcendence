@@ -1,0 +1,287 @@
+import { fetchProfileImages } from './fetchData.js';
+
+function settingsNav() {
+	const accessToken = sessionStorage.getItem('accessToken');
+	if (!accessToken) {
+		console.error('Access token not found');
+		return;
+	}
+	const userId = sessionStorage.getItem('userId');
+
+	fetch(`https://${window.location.host}/auth/users/info/`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + accessToken
+		},
+		body: JSON.stringify({ user_ids: [userId] })
+	})
+	.then(response => response.json())
+	.then(data => {
+		const user = data[userId];
+		
+		document.getElementById('profile-username').innerText = user.username;
+		document.getElementById('profile-id').innerText = user.id;
+		document.getElementById('username').innerText = user.username;
+		document.getElementById('userMail').innerText = user.email;
+		
+		fetchProfileImages(user.id, accessToken, ['userIcon']);
+		
+		const btn2FA = document.getElementById('btn2FA');
+		if (user['2fa']) {
+			btn2FA.innerText = 'Disable 2FA';
+			btn2FA.addEventListener('click', disable2FA);
+		} else {
+			btn2FA.addEventListener('click', enable2FA);
+		}
+		
+		if (user['Student']) {
+			document.getElementById('editBtnUsername').style.display = 'none';
+			document.getElementById('editBtnUserpwrd').style.display = 'none';
+			document.getElementById('editBtnUserMail').style.display = 'none';
+			document.getElementById('upload-image-form').style.display = 'none';
+		}
+	})
+	.catch(error => console.error('Error viewing profile:', error));
+};
+
+settingsNav();
+
+document.getElementById('upload-image-form').addEventListener('submit', async function (event) {
+	event.preventDefault();
+	const accessToken = sessionStorage.getItem('accessToken');
+	const userId = sessionStorage.getItem('userId');
+	const fileInput = document.getElementById('upload-image');
+	const formData = new FormData();
+	formData.append('image', fileInput.files[0]);
+
+	try {
+		const response = await fetch(`https://${window.location.host}/media/upload/`, {
+			method: 'POST',
+			headers: {
+				'Authorization': 'Bearer ' + accessToken
+			},
+			body: formData
+		});
+		if (response.ok) {
+			alert('Image uploaded successfully.');
+			fetchProfileImages(userId, accessToken, ['userIcon']);
+		} else {
+			alert('Failed to upload image. Please try again.');
+		}
+	} catch (error) {
+		console.error('Error uploading image:', error);
+		alert('Failed to upload image. Please try again.');
+	}
+});
+
+async function enable2FA(event) {
+	event.preventDefault();
+	const accessToken = sessionStorage.getItem('accessToken');
+	try {
+		const response = await fetch(`https://${window.location.host}/auth/2fa/enable/`, {
+			method: 'GET',
+			headers: {
+				'Authorization': 'Bearer ' + accessToken
+			}
+		});
+		if (response.ok) {
+			const data = await response.json();
+			document.getElementById('qrCodeContainer').innerHTML = `<img src="data:image/png;base64,${data.qr_code}" alt="QR Code">`;
+			const otpSecret = data.otp_secret;
+			const otpInput = document.createElement('input');
+			otpInput.type = 'text';
+			otpInput.id = 'otpInput';
+			otpInput.placeholder = 'Enter OTP';
+			const verifyButton = document.createElement('button');
+			verifyButton.innerText = 'Verify';
+			verifyButton.style.color = 'black';
+			verifyButton.addEventListener('click', async function () {
+				const otpCode = otpInput.value;
+				try {
+					const verifyResponse = await fetch(`https://${window.location.host}/auth/2fa/verify/`, {
+						method: 'POST',
+						headers: {
+							'Authorization': 'Bearer ' + accessToken,
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ otp: otpCode, otp_secret: otpSecret })
+					});
+					if (verifyResponse.ok) {
+						alert('2FA enabled successfully.');
+						document.getElementById('qrCodeContainer').innerHTML = '';
+						const btn2FA = document.getElementById('btn2FA');
+						btn2FA.innerText = 'Disable 2FA';
+						btn2FA.removeEventListener('click', enable2FA);
+						btn2FA.addEventListener('click', disable2FA);
+					} else {
+						alert('Failed to verify OTP. Please try again.');
+					}
+				} catch (error) {
+					console.error('Error verifying OTP:', error);
+					alert('Failed to verify OTP. Please try again.');
+				}
+			});
+			document.getElementById('qrCodeContainer').appendChild(otpInput);
+			document.getElementById('qrCodeContainer').appendChild(verifyButton);
+		} else {
+			alert('Failed to initiate 2FA. Please try again.');
+		}
+	} catch (error) {
+		console.error('Error initiating 2FA:', error);
+		alert('Failed to initiate 2FA. Please try again.');
+	}
+}
+
+async function disable2FA(event) {
+	event.preventDefault();
+	const accessToken = sessionStorage.getItem('accessToken');
+	try {
+		const response = await fetch(`https://${window.location.host}/auth/2fa/disable/`, {
+			method: 'DELETE',
+			headers: {
+				'Authorization': 'Bearer ' + accessToken
+			}
+		});
+		if (response.ok) {
+			alert('2FA disabled successfully.');
+			const btn2FA = document.getElementById('btn2FA');
+			btn2FA.innerText = 'Activate 2-factor authentication';
+			btn2FA.removeEventListener('click', disable2FA);
+			btn2FA.addEventListener('click', enable2FA);
+		} else {
+			alert('Failed to disable 2FA. Please try again.');
+		}
+	} catch (error) {
+		console.error('Error disabling 2FA:', error);
+		alert('Failed to disable 2FA. Please try again.');
+	}
+}
+
+document.getElementById('editBtnUsername').addEventListener('click', function () {
+    toggleEditForm('username');
+});
+document.getElementById('saveBtnUsername').addEventListener('click', function () {
+    saveField('username');
+});
+document.getElementById('cancelBtnUsername').addEventListener('click', function () {
+    toggleEditForm('username');
+});
+
+document.getElementById('editBtnUserpwrd').addEventListener('click', function () {
+    toggleEditForm('userpwrd');
+});
+document.getElementById('saveBtnUserpwrd').addEventListener('click', function () {
+    saveField('userpwrd');
+});
+document.getElementById('cancelBtnUserpwrd').addEventListener('click', function () {
+    toggleEditForm('userpwrd');
+});
+
+document.getElementById('editBtnUserMail').addEventListener('click', function () {
+    toggleEditForm('userMail');
+});
+document.getElementById('saveBtnUserMail').addEventListener('click', function () {
+    saveField('userMail');
+});
+document.getElementById('cancelBtnUserMail').addEventListener('click', function () {
+    toggleEditForm('userMail');
+});
+
+
+function toggleEditForm(fieldId) {
+	const form = document.getElementById(`${fieldId}-form`);
+    const span = document.getElementById(fieldId);
+	const button = document.getElementById(`editBtn${capitalizeFirstLetter(fieldId)}`);
+    let input;
+	if (fieldId !== 'userpwrd') {
+		input = document.getElementById(`${fieldId}-input`);
+	}
+   
+	if (form.style.display === 'none') {
+        if (fieldId !== 'userpwrd') {
+			input.placeholder = span.innerText;
+		}
+        form.style.display = 'block';
+        span.style.display = 'none';
+        button.style.display = 'none';
+    } else {
+        form.style.display = 'none';
+        span.style.display = 'inline';
+        button.style.display = 'inline';
+    }
+}
+
+function saveField(fieldId) {
+    if (fieldId === 'userMail' || fieldId === 'username')
+		updateUsernameOrEmail();
+	else
+		updatePassword();
+
+    toggleEditForm(fieldId);
+}
+
+function updatePassword() {
+    const oldPassword = document.getElementById('old-userpwrd-input').value;
+    const newPassword = document.getElementById('new-userpwrd-input').value;
+    const accessToken = sessionStorage.getItem('accessToken');
+
+
+    fetch(`https://${window.location.host}/auth/password/update/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+        },
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+    })
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(({ status, body }) => {
+        if (status === 200) {
+            alert('Password updated successfully');
+        } else {
+            alert('Failed to update password: ' + body.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating password:', error);
+        alert('An error occurred while updating the password');
+    });
+}
+
+function updateUsernameOrEmail() {
+	const accessToken = sessionStorage.getItem('accessToken');
+	const currentUsername = document.getElementById('username').innerText;
+	const currentEmail = document.getElementById('userMail').innerText;
+	const newUsername = document.getElementById('username-input').value || currentUsername;
+	const newEmail = document.getElementById('userMail-input').value || currentEmail;
+	
+	fetch(`https://${window.location.host}/auth/update/`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + accessToken
+		},
+		body: JSON.stringify({ username: newUsername, email: newEmail })
+	})
+	.then(response => response.json().then(data => ({ status: response.status, body: data })))
+	.then(({ status, body }) => {
+		if (status === 200) {
+			sessionStorage.setItem('username', body.username);
+			document.getElementById('profile-username').innerText = body.username;
+			document.getElementById('username').innerText = body.username;
+			document.getElementById('userMail').innerText = body.email;
+			alert('Changes saved successfully.');
+		} else {
+			alert('Failed to save changes. Please try again.\n Error: ' + body.message);
+		}
+	})
+	.catch(error => {
+		console.error('Error saving changes:', error);
+		alert('Failed to save changes. Please try again.');
+	});
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

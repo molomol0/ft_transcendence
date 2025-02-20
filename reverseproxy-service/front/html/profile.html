@@ -1,0 +1,144 @@
+<head>
+	<title>Profile</title>
+	<meta charset="utf-8">
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../css/profile.css">
+	<link rel="stylesheet" href="../css/xp.css/dist/XP.css" />
+</head>
+
+<body onload="viewProfile()">
+	<div class="title-bar">
+		<div class="title-bar-text">Profile</div>
+		<div class="title-bar-controls">
+			<button aria-label="Close" id="close-button" onclick="route(event, '/')"></button>
+		</div>
+	</div>
+
+	<div class="main-content">
+		<div class="window" id="profileDisplay">
+			<div class="title-bar">
+				<div class="title-bar-text">User</div>
+			</div>
+			<div class="window-body">
+				<div class="window-header">
+					<img src="../css/icon/pong_logo.png" id="userIcon">
+					<span id="userID"><span id="profile-username">Username</span><span class="IDHash">#<span
+								id="profile-id">ID</span></span></span>
+					<button id="editBtn" onclick="route(event, '/settings')">Edit</button>
+				</div>
+				<div class="flex-tables">
+					<div class="tables">
+						<h2>History</h2>
+						<div class="table-wrapper" id="history-wrapper">
+							<table id="history">
+								<tr id="history-header">
+									<th>Match ID</th>
+									<th>Player 1</th>
+									<th>Player 2</th>
+									<th>Score Player 1</th>
+									<th>Score Player 2</th>
+									<th>Duration</th>
+									<th>Start Time</th>
+								</tr>
+								<!-- History rows will be dynamically inserted here -->
+							</table>
+						</div>
+					</div>
+					<div class="tables">
+						<h2>Statistics</h2>
+						<div class="table-wrapper">
+							<table id="statistics">
+								<tr>
+									<td>Winrate</td>
+									<td class="stat">
+										<div class="winrate-container">
+											<svg id="winrate" width="80" height="80" viewBox="0 0 100 100">
+												<circle cx="50" cy="50" r="45" stroke="#E0E0E0" stroke-width="10" fill="none" />
+												<circle id="winrate-progress" cx="50" cy="50" r="45" stroke="#0051ee" stroke-width="10" fill="none" 
+													stroke-dasharray="283" stroke-dashoffset="283" transform="rotate(-90 50 50)" />
+												<text id="winrate-text" x="50" y="55" text-anchor="middle" font-size="18px" fill="#333">0%</text>
+											</svg>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Game played</td>
+									<td class="stat" id="games-played">0</td>
+								</tr>
+								<tr>
+									<td>KD</td>
+									<td class="stat" id="kd">0.0</td>
+								</tr>
+								<tr>
+									<td>Time played</td>
+									<td class="stat" id="time-played">0h0m</td>
+								</tr>
+								<tr>
+									<td>Point per game</td>
+									<td class="stat" id="points-per-game">0.0</td>
+								</tr>
+								<tr>
+									<td>Point taken per game</td>
+									<td class="stat" id="points-taken-per-game">0.0</td>
+								</tr>
+								<tr>
+									<td>Total point scored</td>
+									<td class="stat" id="total-points-scored">0</td>
+								</tr>
+								<tr>
+									<td>Total point taken</td>
+									<td class="stat" id="total-points-taken">0</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="window" id="friendDisplay">
+			<div class="title-bar">
+				<div class="title-bar-text">Search User</div>
+			</div>
+			<div class="window-body friend-window">
+				<div class="search-bar">
+					<input type="text" placeholder="Search user" id="search_bar">
+				</div>
+
+
+				<!-- Users -->
+				<div class="window searchUser-window" id="searchResults">
+					<div class="title-bar title-bar-user">
+						<div class="title-bar-text">Users</div>
+					</div>
+					<div id="searchResults-body">
+
+					</div>
+				</div>
+
+
+				<!-- Friend Requests -->
+				<div class="window friendRequest-window" id="requestResults">
+					<div class="title-bar title-bar-user">
+						<div class="title-bar-text">Friend Request</div>
+					</div>
+					<div id="requestResults-body">
+
+					</div>
+				</div>
+
+
+				<!-- Friends -->
+				<div class="window friendsList-window" id="friendList">
+					<div class="title-bar title-bar-user">
+						<div class="title-bar-text">Friend List</div>
+					</div>
+					<div id="friendList-body">
+						
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</body>

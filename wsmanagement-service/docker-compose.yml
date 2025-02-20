@@ -1,0 +1,24 @@
+services:
+  wsmanagement:
+    build:
+      context: ./docker
+    volumes:
+      - .:/app
+      - ./docker:/app/docker
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DEBUG=True
+    env_file:
+      - ../.env
+    networks:
+      my_network:
+        aliases:
+          - wsmanagement
+    entrypoint: ["/app/docker/entrypoint_dev.sh"]
+
+volumes:
+  postgres_data:
+
+networks:
+  my_network:
+    external: true
