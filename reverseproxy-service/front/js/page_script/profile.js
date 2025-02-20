@@ -80,7 +80,6 @@ function fetchSearchResults(query) {
 		.then(response => response.json())
 		.then(data => {
 			if (data.users) {
-				console.log('Search results:', data.users);
 				displaySearchResults(data.users);
 			} else {
 				console.error('No users found');
@@ -173,7 +172,6 @@ function formatDate(dateStr) {
 
 
 function fetchUserMatches(userId, accessToken) {
-	console.log('Fetching user matches...');
 	fetch(`https://${window.location.host}/usermanagement/${userId}/matches/`, {
 		method: 'GET',
 		headers: {
@@ -334,7 +332,6 @@ export function fetchFriendRequests() {
 
 		const userIds = data.pending_requests.map(request => request);
 		if (userIds.length === 0) {
-			console.log('No friend requests found');
 			return;
 		}
 		// Fetch user information
@@ -417,7 +414,6 @@ function respondToFriendRequest(friendId, accept) {
 	})
 	.then(response => response.json())
 	.then(data => {
-		console.log(`Friend request ${accept ? 'accepted' : 'refused'}:`, data);
 		fetchFriendRequests(); // Refresh friend requests
 		buildFriendList(accessToken, "friendList-body",profileNav);
 		alert(`Friend request ${accept ? 'accepted' : 'refused'} successfully!`);
@@ -442,7 +438,6 @@ function sendFriendRequest(receiverId) {
 	})
 	.then(response => response.json())
 	.then(data => {
-		console.log('Friend request sent:', data);
 		alert('Friend request sent successfully!');
 	})
 	.catch(error => {

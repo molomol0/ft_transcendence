@@ -11,7 +11,6 @@ function loadChatPage() {
 		console.error('Access token not found');
 		return;
 	}
-    console.log('Loading chat page');
 	buildFriendList(accessToken, 'friendList', Chat);
 }
 
@@ -54,7 +53,6 @@ function Chat(userIdToChat) {
         let chat_with = document.getElementById('chat-with');
         fetchUsersInfos(accessToken, [userIdToChat])
         .then (userData => {
-            console.log(userData);
             chat_with.textContent = userData[userIdToChat].username;
         });
     };
@@ -96,7 +94,6 @@ function sendChatMessage() {
 
 export function quit() {
     if (window.chatSocket) {
-        console.log('Closing Chat WebSocket connection due to page change...');
         window.chatSocket.close();
         window.chatSocket = null;
     }

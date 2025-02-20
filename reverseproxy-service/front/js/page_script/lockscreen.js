@@ -144,8 +144,6 @@ submitRegiBtn.addEventListener('click', function() {
 	}
 	if (pswrdRegiField.value !== repswrdRegiField.value) {
 		pswrdRegiField.setCustomValidity('Passwords do not match');
-		console.log(pswrdRegiField.value);
-		console.log(repswrdRegiField.value);
 	}
 });
 
@@ -155,9 +153,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
    const email = document.getElementById('usrnameField').value;
    const password = document.getElementById('pswrdField').value;
    const otp = document.getElementById('2faField').value;
-   console.log('Email:', email);
-   console.log('Password:', password);
-   console.log('OTP:', otp);
    
    fetch(`https://${window.location.host}/auth/login/`, {
        method: 'POST',
@@ -173,7 +168,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
        if (response.ok) {
            // Handle successful login
            response.json().then(data => {
-            	console.log('Login successful:', data);
 				sessionStorage.setItem('accessToken', data.access);
             	sessionStorage.setItem('refreshToken', data.refresh);
             	sessionStorage.setItem('userId', data.user.id);
@@ -241,10 +235,6 @@ document.querySelector('#registerFormContainer form').addEventListener('submit',
 	const password = document.getElementById('pswrdRegiField').value;
 	const password2 = document.getElementById('repswrdRegiField').value;
 	const email = document.getElementById('emailRegiField').value;
-	console.log('Username:', username);
-	console.log('Password:', password);
-	console.log('Confirm Password:', password2);
-	console.log('Email:', email);
 
 	fetch(`https://${window.location.host}/auth/signup/`, {
 		method: 'POST',
@@ -261,13 +251,11 @@ document.querySelector('#registerFormContainer form').addEventListener('submit',
 		if (response.ok) {
 			// Handle successful registration
 			response.json().then(data => {
-				console.log('Registration successful:', data);
 				alert(data.message || 'Registration successful! Please verify your email.');
 				// Redirect to login page or perform other actions
 			});
 		} else {
 			response.json().then(data => {
-				console.log('Registration failed:', data);
 				const errorMessage = Object.values(data).flat().join('\n');
 				alert(errorMessage || 'Registration failed.');
 			});

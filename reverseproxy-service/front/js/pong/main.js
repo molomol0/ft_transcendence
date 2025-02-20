@@ -10,7 +10,7 @@ import { onKeyDown, onKeyUp, onMouseWheel } from "./keyEvents.js";
 import { Settings } from "./settings.js";
 import { titleDisplay } from "./monitor_display.js";
 import { buildFriendList } from "../page_script/friendList.js";
-import { pongBindings, pongColors, pongSet, getMatchWinners } from "./pong_bind.js";
+import { pongBindings, pongColors, pongSet, getMatchWinners, getMatchPlayers } from "./pong_bind.js";
 
 // ///////////////////////////////////environment settings///////////////////////////////
 export let settings = null;
@@ -50,22 +50,40 @@ function annonceWinner(player1, player2) {
     pongSet.game_announcement = true;
 }
 
+async function clearPlayersNames() {
+    pongSet.players_names = ["player 1", "player 2", "player 3", "player 4", null, null, null];
+    await sleep(1000);
+    const matchWinners = getMatchWinners();
+    matchWinners.semifinal1Winner.value = '';
+    matchWinners.semifinal2Winner.value = '';
+    matchWinners.finalWinner.value = '';
+    const  matchPlayers = getMatchPlayers();
+    matchPlayers.player1.value = '';
+    matchPlayers.player2.value = '';
+    matchPlayers.player3.value = '';
+    matchPlayers.player4.value = '';
+}
+
 export async function quit() {
     if (settings) {
         if (settings.player1Score === settings.maxScore || settings.player2Score === settings.maxScore) {
             if (settings.gameMode === 'local tournament' ) {
                 if (pongSet.current_match === 1) {
+                    pongSet.game_announcement = false;
                     annonceWinner(0, 1);
                     pongSet.current_match++;
                 }
                 else if (pongSet.current_match === 2) {
+                    pongSet.game_announcement = false;
                     annonceWinner(2, 3);
                     pongSet.current_match++;
                 }
                 else {
+                    pongSet.game_announcement = false;
                     annonceWinner(4, 5);
                     alert(pongSet.players_names[6] + ' wins the tournament!');
                     pongSet.current_match = 1;
+                    clearPlayersNames();
                 }
             }
             else {
@@ -85,7 +103,6 @@ export async function quit() {
     }
 
     if (window.pongSocket) {
-        console.log("window.pongSocket before close: ", window.pongSocket);
         window.pongSocket.close();
         window.pongSocket = null;
     }
@@ -149,7 +166,6 @@ function initEnvironment() {
 
 export async function startGame(gameId) {
     if (!settings) return;
-    // settings.
     if (settings.gameMode === 'remote 1v1') {
         remote_game(gameId);
     }
@@ -178,21 +194,13 @@ export async function remote_game(gameId) {
 
         window.pongSocket.onmessage = function (event) {
             const message = JSON.parse(event.data);
-            // console.log('Received message:', message);
             if (message.event === 'assign_role') {
                 settings.remoteRole = message.data;
-                // console.log('Assigned role:', settings.remoteRole);
             }
             if (message.event === 'game_update') {
-                // console.log(`Ball position: ${ball.position.x}, ${ball.position.z}`);
                 ball.position.x = message.data.ball.x;
                 ball.position.z = -message.data.ball.y;
 
-                // console.log(`centerZ: ${settings.centerZ}`);
-                // console.log(`Player 1 positions: `, message.data.players.left.pos.y);
-                // console.log(`Player 2 positions: `, message.data.players.right.pos.y);
-                // settings.updatePlayer1Positions(movePlayerRemote(settings.player1Positions, settings.centerZ - message.data.players.left.pos.y + 2));
-                // settings.updatePlayer2Positions(movePlayerRemote(settings.player2Positions, settings.centerZ - message.data.players.right.pos.y + 2));
                 settings.updatePlayer1Positions(movePlayerRemote(settings.player1Positions, 15 - message.data.players.left.pos.y));
                 settings.updatePlayer2Positions(movePlayerRemote(settings.player2Positions, 15 - message.data.players.right.pos.y));
 
@@ -300,7 +308,6 @@ function changePlayStyle()
 
 export async function initializeGame(gameId) {
     console.log('Initializing game...');
-    console.log('Players in the game: ', pongSet.players_names);
     document.getElementById('waitingScreen').style.display = 'block';
     document.getElementById('nav').style.display = 'none';
     document.getElementById('startButton').style.display = 'none';
@@ -346,9 +353,6 @@ function setupGameModeSelect() {
     if (gameModeSelect) {
         gameModeSelect.addEventListener('change', function () {
             pongSet.selectedMode = gameModeSelect.value.toLowerCase();
-            // console.log('sections: ', sections);
-            // gameModeSelect = selectedMode;
-            // Hide all sections
             Object.values(sections).forEach(section => {
                 if (section) {
                     section.style.display = 'none';

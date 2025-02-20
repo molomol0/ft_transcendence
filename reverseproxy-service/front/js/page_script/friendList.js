@@ -230,12 +230,10 @@ export function changeFriendStatus() {
         
         if (onlineUsers.has(userId)) {
             // User is online
-            console.log('Changing status to online for:', userId);
             userElement.classList.remove('offline');
             userElement.classList.add('online');
         } else {
             // User is offline
-            console.log('Changing status to offline for:', userId);
             userElement.classList.remove('online');
             userElement.classList.add('offline');
         }

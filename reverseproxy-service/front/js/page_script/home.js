@@ -8,19 +8,12 @@ export let socket = null;
 import { fetchFriendRequests,profileNav } from '../page_script/profile.js';
 
 export async function connectWebSocket(accessToken, username, userId, globalSocket) {
-    console.log('Connecting to WebSocket...');
-    const userList = document.getElementById('user-list');
-    const friendRequestList = document.getElementById('friend-request-list');
-    console.log(accessToken);
-    console.log(userId);
-    console.log(username);
 
     const encodedToken = encodeURIComponent(accessToken);
     socket = new WebSocket(`wss://${window.location.host}/wsmanagement/lobby/?${encodedToken}`);
     globalSocket = socket;
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        console.log('Received WebSocket message:', data);
 
         switch (data.type) {
             case 'invite_code':
@@ -40,7 +33,6 @@ export async function connectWebSocket(accessToken, username, userId, globalSock
 };
 
 function reloadProfileScript(accessToken) {
-    console.log("recu");
     fetchFriendRequests();
     buildFriendList(accessToken, "friendList-body",profileNav);
 }
