@@ -40,16 +40,16 @@
                         window.opener.postMessage({
                             type: 'oauth_callback',
                             code: code
-                        }, 'https://xpongo.ddns.net:8443');
+                        }, 'https://sxpongo.ddns.net:8443');
                         setTimeout(() => window.close(), 1000);
                     } catch (e) {
                         console.error('Error sending message to opener:', e);
                         // Fallback à la redirection si la communication inter-fenêtres échoue
-                        window.location.href = `https://xpongo.ddns.net:8443/?code=${code}`;
+                        window.location.href = `https://sxpongo.ddns.net:8443/?code=${code}`;
                     }
                 } else {
                     // Si accédé directement (pas en popup)
-                    window.location.href = `https://xpongo.ddns.net:8443/?code=${code}`;
+                    window.location.href = `https://sxpongo.ddns.net:8443/?code=${code}`;
                 }
             } else {
                 document.querySelector('.message').innerHTML = `
@@ -57,7 +57,7 @@
                     <p>Authorization code not found.</p>
                 `;
                 setTimeout(() => {
-                    window.location.href = 'https://xpongo.ddns.net:8443/';
+                    window.location.href = 'https://sxpongo.ddns.net:8443/';
                 }, 3000);
             }
         };

@@ -274,7 +274,7 @@ const log42Button = document.getElementById('log42Button');
 // Gestionnaire des messages de la popup OAuth
 window.addEventListener('message', function(event) {
     // Vérifier l'origine
-    if (event.origin !== 'https://xpongo.ddns.net:8443') return;
+    if (event.origin !== 'https://sxpongo.ddns.net:8443') return;
 
     const data = event.data;
     if (data.type === 'oauth_callback' && data.code) {
@@ -337,11 +337,7 @@ function handleOAuthCode(code) {
 }
 
 log42Button.addEventListener('click', function() {
-    const oauthUrl = "https://api.intra.42.fr/oauth/authorize?" + new URLSearchParams({
-        client_id: 'u-s4t2ud-6d896cbba0cf9cbd760394daeca2728498dace7f3254b04ac08fe1fc0dcc73f3',
-        redirect_uri: 'https://xpongo.ddns.net:8443/succes/',
-        response_type: 'code'
-    });
+    const oauthUrl = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-6d896cbba0cf9cbd760394daeca2728498dace7f3254b04ac08fe1fc0dcc73f3&redirect_uri=https%3A%2F%2Fsxpongo.ddns.net%3A8443%2Fsucces%2F&response_type=code"
     
     // Ouvrir dans une popup
     const popup = window.open(oauthUrl, 'OAuth Login', 'width=600,height=600');
