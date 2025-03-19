@@ -17,7 +17,7 @@ ft_transcendence est le dernier projet du cursus commun de l'école 42. C'est un
 
 ## 🎬 Démo du Jeu
 
-https://github.com/Bilou0412/ft_transcendence/assets/game-demo.mp4
+https://github.com/user-attachments/assets/ab6e79fb-674f-4bbf-9d78-b39f7c0f7abc
 
 ## 🎯 Fonctionnalités principales
 
