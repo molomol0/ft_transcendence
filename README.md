@@ -32,10 +32,12 @@ https://github.com/user-attachments/assets/ab6e79fb-674f-4bbf-9d78-b39f7c0f7abc
 ## 🛠 Stack technique
 
 - **Backend** : Python
+- **Frontend** : HTML,CSS,JS
 - **Base de données** : PostgreSQL
 - **Cache** : Redis
 - **Reverse Proxy** : Nginx
 - **Conteneurisation** : Docker & Docker Compose
+- **Game Design** : Three.js
 
 ## 🎮 Comment lancer le projet
 
