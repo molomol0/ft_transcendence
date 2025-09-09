@@ -19,6 +19,12 @@ ft_transcendence est le dernier projet du cursus commun de l'école 42. C'est un
 
 https://github.com/user-attachments/assets/ab6e79fb-674f-4bbf-9d78-b39f7c0f7abc
 
+## Gameplay
+
+https://github.com/user-attachments/assets/e53dc595-6f02-4130-a2c9-d5f9bd67b7f0
+
+
+
 ## 🎯 Fonctionnalités principales
 
 - **Interface Windows XP** : Une reproduction fidèle de l'interface iconique de Windows XP
